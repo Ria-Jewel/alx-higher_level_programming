@@ -1,79 +1,99 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "lists.h"
 
-typedef struct listint_s {
-    int n;
-    struct listint_s *next;
-} listint_t;
+/**
+ * is_palindrome - Checks if a singly linked list is a palindrome.
+ * @head: The head of the singly linked list.
+ *
+ * Description: This function determines whether a singly linked list is a
+ * palindrome by comparing elements symmetrically from the start and end of
+ * the list.
+ *
+ * Return: 0 if it is not a palindrome, 1 if it is a palindrome.
+ */
+int is_palindrome(listint_t **head)
+{
+    listint_t *start = NULL, *end = NULL;
+    unsigned int i = 0, len = 0, len_cyc = 0, len_list = 0;
 
-int is_palindrome(listint_t **head) {
-    if (*head == NULL) {
-        return 1; // An empty list is considered a palindrome
+    // Check for invalid input
+    if (head == NULL)
+        return (0);
+
+    // An empty list is considered a palindrome
+    if (*head == NULL)
+        return (1);
+
+    // Initialize pointers and lengths
+    start = *head;
+    len = listint_len(start);
+    len_cyc = len * 2;
+    len_list = len_cyc - 2;
+    end = *head;
+
+    // Compare elements symmetrically
+    for (; i < len_cyc; i = i + 2)
+    {
+        if (start[i].n != end[len_list].n)
+            return (0);
+
+        len_list = len_list - 2;
     }
 
-    listint_t *slow = *head;
-    listint_t *fast = *head;
-    listint_t *prev = NULL;
-    listint_t *next = NULL;
+    return (1);
+}
 
-    // Find the middle of the list using the two-pointer technique
-    while (fast != NULL && fast->next != NULL) {
-        fast = fast->next->next;
-        next = slow->next;
-        slow->next = prev;
-        prev = slow;
-        slow = next;
-    }
+/**
+ * get_nodeint_at_index - Gets a node from a linked list.
+ * @head: The head of the linked list.
+ * @index: The index to find in the linked list.
+ *
+ * Description: This function retrieves the node at a specified index in the
+ * linked list.
+ *
+ * Return: The specific node of the linked list, or NULL if not found.
+ */
+listint_t *get_nodeint_at_index(listint_t *head, unsigned int index)
+{
+    listint_t *current = head;
+    unsigned int iter_times = 0;
 
-    // If the list has odd number of nodes, move slow one step forward
-    if (fast != NULL) {
-        slow = slow->next;
-    }
+    // Iterate through the linked list to find the specified index
+    if (head)
+    {
+        while (current != NULL)
+        {
+            if (iter_times == index)
+                return (current);
 
-    // Compare the first half (prev) and the second half (slow)
-    while (prev != NULL && slow != NULL) {
-        if (prev->n != slow->n) {
-            return 0; // Not a palindrome
+            current = current->next;
+            ++iter_times;
         }
-        prev = prev->next;
-        slow = slow->next;
     }
 
-    return 1; // It's a palindrome
+    return (NULL);
 }
 
-// Helper function to create a new node
-listint_t *newNode(int n) {
-    listint_t *node = malloc(sizeof(listint_t));
-    if (node != NULL) {
-        node->n = n;
-        node->next = NULL;
-    }
-    return node;
-}
+/**
+ * listint_len - Counts the number of elements in a linked list.
+ * @h: The linked list to count.
+ *
+ * Description: This function calculates the number of elements in a linked list.
+ *
+ * Return: Number of elements in the linked list.
+ */
+size_t listint_len(const listint_t *h)
+{
+    int length = 0;
 
-int main() {
-    listint_t *head = newNode(1);
-    head->next = newNode(2);
-    head->next->next = newNode(3);
-    head->next->next->next = newNode(2);
-    head->next->next->next->next = newNode(1);
-
-    int result = is_palindrome(&head);
-    if (result) {
-        printf("The list is a palindrome.\n");
-    } else {
-        printf("The list is not a palindrome.\n");
+    // Iterate through the linked list and count elements
+    while (h != NULL)
+    {
+        ++length;
+        h = h->next;
     }
 
-    // Free the allocated memory
-    while (head != NULL) {
-        listint_t *temp = head;
-        head = head->next;
-        free(temp);
-    }
-
-    return 0;
+    return (length);
 }
 
