@@ -1,99 +1,85 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "lists.h"
 
 /**
- * is_palindrome - Checks if a singly linked list is a palindrome.
- * @head: The head of the singly linked list.
+ * reverse_listint - Reverses a linked list.
+ * @head: A pointer to the pointer of the first node in the list.
  *
- * Description: This function determines whether a singly linked list is a
- * palindrome by comparing elements symmetrically from the start and end of
- * the list.
+ * Description: This function reverses a singly linked list by changing the
+ * direction of the next pointers of nodes. It updates the head of the list
+ * to point to the new first node.
+ * Return: Void. The head pointer is modified in place.
+ */
+void reverse_listint(listint_t **head)
+{
+    listint_t *prev = NULL;
+    listint_t *current = *head;
+    listint_t *next = NULL;
+
+    while (current)
+    {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+
+    *head = prev;
+}
+
+/**
+ * is_palindrome - Checks if a linked list is a palindrome.
+ * @head: A double pointer to the linked list.
  *
- * Return: 0 if it is not a palindrome, 1 if it is a palindrome.
+ * Description: This function checks if a singly linked list is a palindrome,
+ * meaning it reads the same forwards and backwards. It uses a two-pointer
+ * approach to compare elements symmetrically from the start and end.
+ *
+ * Return: 1 if the list is a palindrome, 0 if it is not.
  */
 int is_palindrome(listint_t **head)
 {
-    listint_t *start = NULL, *end = NULL;
-    unsigned int i = 0, len = 0, len_cyc = 0, len_list = 0;
+    listint_t *slow = *head, *fast = *head, *temp = *head, *dup = NULL;
 
-    // Check for invalid input
-    if (head == NULL)
-        return (0);
-
-    // An empty list is considered a palindrome
-    if (*head == NULL)
+    // If the list is empty or has only one element, it is a palindrome
+    if (*head == NULL || (*head)->next == NULL)
         return (1);
 
-    // Initialize pointers and lengths
-    start = *head;
-    len = listint_len(start);
-    len_cyc = len * 2;
-    len_list = len_cyc - 2;
-    end = *head;
-
-    // Compare elements symmetrically
-    for (; i < len_cyc; i = i + 2)
+    // Move slow and fast pointers to find the middle of the list
+    while (1)
     {
-        if (start[i].n != end[len_list].n)
-            return (0);
-
-        len_list = len_list - 2;
-    }
-
-    return (1);
-}
-
-/**
- * get_nodeint_at_index - Gets a node from a linked list.
- * @head: The head of the linked list.
- * @index: The index to find in the linked list.
- *
- * Description: This function retrieves the node at a specified index in the
- * linked list.
- *
- * Return: The specific node of the linked list, or NULL if not found.
- */
-listint_t *get_nodeint_at_index(listint_t *head, unsigned int index)
-{
-    listint_t *current = head;
-    unsigned int iter_times = 0;
-
-    // Iterate through the linked list to find the specified index
-    if (head)
-    {
-        while (current != NULL)
+        fast = fast->next->next;
+        if (!fast)
         {
-            if (iter_times == index)
-                return (current);
-
-            current = current->next;
-            ++iter_times;
+            dup = slow->next;
+            break;
         }
+        if (!fast->next)
+        {
+            dup = slow->next->next;
+            break;
+        }
+        slow = slow->next;
     }
 
-    return (NULL);
-}
+    // Reverse the second half of the list
+    reverse_listint(&dup);
 
-/**
- * listint_len - Counts the number of elements in a linked list.
- * @h: The linked list to count.
- *
- * Description: This function calculates the number of elements in a linked list.
- *
- * Return: Number of elements in the linked list.
- */
-size_t listint_len(const listint_t *h)
-{
-    int length = 0;
-
-    // Iterate through the linked list and count elements
-    while (h != NULL)
+    // Compare elements of the reversed second half with the first half
+    while (dup && temp)
     {
-        ++length;
-        h = h->next;
+        if (temp->n == dup->n)
+        {
+            dup = dup->next;
+            temp = temp->next;
+        }
+        else
+            return (0);
     }
 
-    return (length);
+    // If the second half is completely traversed, it's a palindrome
+    if (!dup)
+        return (1);
+
+    return (0);
 }
 
